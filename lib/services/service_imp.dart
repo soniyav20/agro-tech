@@ -78,7 +78,7 @@ class ServiceImp implements Services {
         final List<Orders> l = <Orders>[];
         for (final dynamic data in list) {
           final Map<String, dynamic> d = data as Map<String, dynamic>;
-          l.add(Orders.fromJson(d));
+          l.add(Orders.fromJson(d['order']));
         }
         print(l);
         return l.toBuiltList();

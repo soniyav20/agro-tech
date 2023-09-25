@@ -163,7 +163,7 @@ class _AcceptedOrdersState extends State<AcceptedOrders> {
                                                         const snackBar =
                                                             SnackBar(
                                                           content:
-                                                              Text('Accepted'),
+                                                              Text('Delivered'),
                                                         );
 
 // Find the ScaffoldMessenger in the widget tree
@@ -186,7 +186,7 @@ class _AcceptedOrdersState extends State<AcceptedOrders> {
                                                               const EdgeInsets
                                                                   .all(8.0),
                                                           child: Text(
-                                                            "Accept",
+                                                            "Delivered",
                                                             style: TextStyle(
                                                                 color: Colors
                                                                     .white),
