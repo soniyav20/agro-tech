@@ -1,0 +1,214 @@
+import 'package:agri/services/service_imp.dart';
+import 'package:agri/services/services.dart';
+import 'package:built_collection/built_collection.dart';
+import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+
+import '../models/orders.dart';
+import '../view_models/changes.dart';
+
+bool loading = false;
+
+class AcceptedOrders extends StatefulWidget {
+  const AcceptedOrders({Key? key}) : super(key: key);
+
+  @override
+  State<AcceptedOrders> createState() => _AcceptedOrdersState();
+}
+
+class _AcceptedOrdersState extends State<AcceptedOrders> {
+  Future<void> method() async {
+    await context.read<MyModel>().gethistory1();
+    setState(() {});
+  }
+
+  Future<void> _refresh() async {
+    await context.read<MyModel>().gethistory1();
+    setState(() {});
+    return null;
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    method();
+    setState(() {});
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    Services obj = ServiceImp();
+    BuiltList<Orders>? list = context.read<MyModel>().state.accepted;
+    return RefreshIndicator(
+        color: Colors.white,
+        onRefresh: () {
+          _refresh();
+          return Future(() => null);
+        },
+        child: Scaffold(
+          appBar: AppBar(
+            leading: Builder(
+              builder: (context) => IconButton(
+                icon: Icon(
+                  Icons.exit_to_app,
+                  color: Colors.white,
+                ),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+              ),
+            ),
+            backgroundColor: Color(0xff5a5a5a),
+            title: Text("Accepted Orders"),
+          ),
+          body: Container(
+              height: double.maxFinite,
+              decoration: BoxDecoration(
+                color: Colors.black87,
+              ),
+              child: (list == null || list.isEmpty)
+                  ? Center(
+                      child: Text(
+                      "Nothing Yet",
+                      style: TextStyle(color: Colors.white),
+                    ))
+                  : Padding(
+                      padding: const EdgeInsets.only(top: 10),
+                      child: ListView.builder(
+                        itemCount: list.length,
+                        itemBuilder: (context, index) {
+                          return Padding(
+                            padding: const EdgeInsets.symmetric(
+                                vertical: 8, horizontal: 16),
+                            child: Container(
+                              decoration: BoxDecoration(
+                                  color: Color(0xff3d3c3c),
+                                  borderRadius: BorderRadius.circular(10)),
+                              child: Padding(
+                                padding: const EdgeInsets.all(8.0),
+                                child: Column(
+                                  children: [
+                                    Padding(
+                                      padding: const EdgeInsets.all(8.0),
+                                      child: Text(
+                                        "Order Id: ${list[index].id}",
+                                        textAlign: TextAlign.center,
+                                        style: TextStyle(fontSize: 20),
+                                      ),
+                                    ),
+                                    Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceEvenly,
+                                      children: [
+                                        Column(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.spaceEvenly,
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            Padding(
+                                              padding:
+                                                  const EdgeInsets.all(8.0),
+                                              child: Text(
+                                                  "Status : ${list[index].status}"),
+                                            ),
+                                            Padding(
+                                              padding:
+                                                  const EdgeInsets.all(8.0),
+                                              child: Text(
+                                                  "Paid : ${list[index].paid == true ? "YES" : "NO"}"),
+                                            ),
+                                            Padding(
+                                              padding:
+                                                  const EdgeInsets.all(8.0),
+                                              child: Text(
+                                                  "Consumer : ${list[index].consumer!.consumer_name} "),
+                                            ),
+                                            Padding(
+                                              padding:
+                                                  const EdgeInsets.all(8.0),
+                                              child: Text(
+                                                  "Phone : ${list[index].consumer!.phone_number} "),
+                                            ),
+                                            Padding(
+                                              padding:
+                                                  const EdgeInsets.all(8.0),
+                                              child: Text(
+                                                  "Address : ${list[index].consumer!.address} "),
+                                            ),
+                                          ],
+                                        ),
+                                        loading == false
+                                            ? Column(
+                                                children: [
+                                                  Padding(
+                                                    padding:
+                                                        const EdgeInsets.all(
+                                                            8.0),
+                                                    child: InkWell(
+                                                      onTap: () async {
+                                                        setState(() {
+                                                          loading = true;
+                                                        });
+                                                        await obj.approve(
+                                                            code: list[index]!
+                                                                    .id ??
+                                                                0);
+                                                        await context
+                                                            .read<MyModel>()
+                                                            .gethistory();
+                                                        setState(() {
+                                                          loading = false;
+                                                        });
+                                                        const snackBar =
+                                                            SnackBar(
+                                                          content:
+                                                              Text('Accepted'),
+                                                        );
+
+// Find the ScaffoldMessenger in the widget tree
+// and use it to show a SnackBar.
+                                                        ScaffoldMessenger.of(
+                                                                context)
+                                                            .showSnackBar(
+                                                                snackBar);
+                                                      },
+                                                      child: Container(
+                                                        decoration: BoxDecoration(
+                                                            borderRadius:
+                                                                BorderRadius
+                                                                    .circular(
+                                                                        10),
+                                                            color:
+                                                                Colors.green),
+                                                        child: Padding(
+                                                          padding:
+                                                              const EdgeInsets
+                                                                  .all(8.0),
+                                                          child: Text(
+                                                            "Accept",
+                                                            style: TextStyle(
+                                                                color: Colors
+                                                                    .white),
+                                                          ),
+                                                        ),
+                                                      ),
+                                                    ),
+                                                  ),
+                                                ],
+                                              )
+                                            : CircularProgressIndicator(
+                                                color: Colors.white)
+                                      ],
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          );
+                        },
+                      ),
+                    )),
+        ));
+  }
+}
